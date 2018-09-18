@@ -1,0 +1,115 @@
+---
+title: "HW3DS"
+author: "Hannah Kosinovsky"
+date: 9/18/18
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Question 1
+
+##GitHub Cloning 
+
+To clone the repository to the Desktop folder I made called "HW3" I used the following commands: 
+
+* cd ~/Desktop
+
+* cd HW3
+
+* git clone https://github.com/caesar0301/awesome-public-datasets
+
+When I opened my HW3 folder, it had all the datasets in it. 
+
+#Question 2
+
+##Data Summary
+###a)
+```{r,echo = TRUE}
+df = read.csv(file="~/Desktop/HW3/awesome-public-datasets/Datasets/titanic.csv", header = TRUE)
+
+```
+###b)
+```{r,echo = TRUE}
+length(df$Sex[df$Sex == "female"])
+length(df$Sex[df$Sex == "male"])
+library(ggplot2)
+ggplot(df, aes(x=factor(Sex), fill = Sex)) + geom_bar() + labs(x = "Sex", y = "Count", title = "Count of Men and Women on Titanic")
+```
+
+###c)
+```{r,echo = TRUE}
+NewDF = df[,c("Age","Fare", "Survived")] 
+apply(NewDF, 2, mean, na.rm=TRUE)
+
+```
+#Question 3
+
+##Function Building
+###a-d)
+```{r,echo = TRUE}
+sleep = read.csv(file="~/Desktop/HW3/sleep_data_01.csv", header = TRUE)
+helper = function(x){ #function takes in dataframe as argument
+  MedAge = median(x$Age, na.rm=TRUE) #median of col age
+  MinDur = min(x$Duration, na.rm=TRUE) #min of col Duration
+  MaxDur = max(x$Duration, na.rm=TRUE) #max of col Duration
+  meanRSES = mean(x$RSES, na.rm=TRUE) #mean of col RSES
+  stdvRSES = sd(x$RSES, na.rm=TRUE) #sd of col RSES
+  vals = cbind(MedAge, meanRSES/5, stdvRSES/5, (MaxDur- MinDur)) #cbind values from part b
+  report = as.data.frame(vals) 
+  names(report) =c("MedianAge", "SelfEsteem", "SE_SD","DurationRange")
+  apply(report,2, round, digits = 2) #round all values to 2 digits
+}
+```
+
+###e)
+```{r,echo = TRUE}
+helper(sleep) #use helper function on data frame
+```
+
+#Question 4
+
+##FiveThirtyEight Data 
+
+```{r,echo = TRUE}
+###a)
+#install.packages("fivethirtyeight")
+library(fivethirtyeight)
+data(package = "fivethirtyeight")
+# To see a more detailed list of all data sets, see the package vignette:
+vignette("fivethirtyeight", package = "fivethirtyeight")
+###b - c)
+data(college_recent_grads) #22nd one
+df = college_recent_grads #http://fivethirtyeight.com/features/the-economic-guide-to-picking-a-college-major/
+###d)
+dim(df)
+names(df)
+```
+#Question 5
+
+##Data Summary 
+
+```{r,echo = TRUE}
+###a)
+colnames(df) #this does basically the same as names(df)
+length(colnames(df)) #value of 21 matches the second value in dim(df)
+
+###b)
+major_count = as.data.frame(table(df$major_category))
+
+###c)
+par(las=2) 
+ggplot(data=major_count, aes(x=Var1, y=Freq, fill=Var1)) +
+    geom_bar(stat="identity", show.legend=FALSE) + labs(x = "Major Category", y = "Count", title = "Count of Majors in Category") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+###d)
+write.csv(df, file = "fivethirtyeight.csv")
+```
+
+#Question 6
+
+##CodeBook
+
+My github profile is at: 
+
+https://github.com/hannochka
