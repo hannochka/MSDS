@@ -1,0 +1,104 @@
+---
+title: "HKosinovsky_LiveSessionAssignment5"
+author: "Hannah Kosinovsky"
+date: "9/30/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Question 1
+
+##Data Munging 
+
+
+###a)
+```{r,echo = TRUE}
+df = read.table(file="~/Downloads/Unit5/yob2016.txt", col.names=c("name", "gender", "amount_children"), sep=";")
+
+```
+###b)
+```{r,echo = TRUE}
+str(df)
+dim(df)
+```
+###c)
+```{r,echo = TRUE}
+#find out what name ends with yyy in name column
+grep("yyy$", df$name, value = TRUE)
+```
+###d)
+```{r,echo = TRUE}
+#find where name is located in the df
+match('Fionayyy',df$name)
+#remove row 212 where Fionayyy is 
+y2016 = df[-212, ]
+#check if she's gone
+grep("yyy$",y2016, value = TRUE)
+```
+#Question 2
+
+##Data Merging 
+
+
+###a)
+```{r,echo = TRUE}
+y2015 = read.table(file="~/Downloads/Unit5/yob2015.txt", col.names=c("name", "gender", "amount_children"), sep=",")
+```
+
+###b)
+```{r,echo = TRUE}
+tail(y2015, 10)
+```
+All of them have 5 children named this name and I'm honestly surprised by the number of names that start with 'z'
+
+###c)
+```{r,echo = TRUE}
+#merge by name/ all = FALSE is default
+final = merge(y2015, y2016, by = c("name", "gender")) #want names to be specifically for boy or girl
+```
+
+#Question 3
+
+##Data Summary 
+
+
+###a)
+```{r,echo = TRUE}
+final$total = final$amount_children.x + final$amount_children.y
+```
+###b)
+```{r,echo = TRUE}
+#sort by total
+final = final[order(final$total, decreasing = TRUE),]
+
+#10 most popular names
+head(final$name, 10)
+```
+###c)
+```{r,echo = TRUE}
+#subset df by gender = "F"
+final_girls = final[final$gender == 'F',]
+#10 most popular girl names
+head(final_girls, 10)
+```
+###d)
+```{r,echo = TRUE}
+#get dataframe of just top 10 girls with just their name and total
+top = head(final_girls, 10)
+top = top[,c("name", "total")]
+
+#write a csv
+write.csv(top, file = "top10GirlNames.csv")
+```
+
+#Question 4
+
+##CodeBook
+
+My github profile is at: 
+
+https://github.com/hannochka
+
