@@ -1,0 +1,119 @@
+---
+title: "Assignment 12"
+author: "Hannah Kosinovsky"
+date: "11/27/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Question 1: Warm Up: Brief Financial Data 
+
+##a) EuStockMarkets
+```{r,echo = TRUE}
+help(EuStockMarkets) 
+EuStockMarkets
+```
+
+##b) simple plot
+```{r,echo = TRUE}
+DAX = EuStockMarkets[,1]
+plot(DAX, xlab = "Year", ylab = "Daily Closing Prices DAX", main = "Daily Dax Closer prices 1991-1998", col = "blue")
+abline(v=1997, col="red")
+```
+
+##c) decompose
+```{r,echo = TRUE}
+#install.packages("forecast")
+library(forecast)
+decomp.dax = decompose(DAX) 
+plot(decomp.dax, xlab = "Year", ylab = "Daily Closing Prices DAX", col = "blue")
+abline(v=1997, col="red")
+```
+
+#Question 2: Temperature Data
+
+##a) Examine data
+```{r,echo = TRUE}
+#install.packages('fpp2', dependencies = TRUE)
+library(fpp2)
+help(maxtemp)
+maxtemp<- ts(maxtemp, frequency=12, start=c(1971,1))
+
+autoplot(maxtemp)
+```
+
+##b) Subset of data after 1990
+```{r,echo = TRUE}
+#info after 1990
+maxtemp.90s<-window(maxtemp, start=1990)
+autoplot(maxtemp.90s)
+```
+
+
+##c)	Utilize SES to predict the next five years of maximum temperatures in Melbourne
+```{r,echo = TRUE}
+ses(maxtemp.90s, h = 5, level = 95)
+plot(maxtemp.90s)
+fit <- ses(maxtemp.90s, h = 5, level = 95)
+#attributes(fit)
+plot(fit, ylab="Temperature", xlab="Year", main="Forecast of Max Temperatures")
+fit$model
+```
+
+##d)	Utilize damped Holt's linear trend to predict the next five years of maximum temperatures in Melbourne
+```{r,echo = TRUE}
+holtfit <- holt(maxtemp.90s, initial="optimal", h=5, damped=TRUE)
+plot(holtfit, ylab="Temperature", xlab= "Year", main="Forecast")
+lines(fitted(holtfit), col="blue", type="o")
+holtfit$model
+```
+
+
+##e)	Compare the AICc 
+
+###The model with lower AIC is the better model. The AIC from the damped Holt method is 141.38.
+###The AIC from the SES model is 140.48. Therefore, the SES model is better
+
+#Question 3: The Wands Choose the Wizard 
+
+##a) Read in data
+```{r,echo = TRUE}
+Gregorovitch = read.csv(file="~/Downloads/MSDSUNIT12Assignment/Unit11TimeSeries_Gregorovitch.csv", header = FALSE)
+Olivander = read.csv(file="~/Downloads/MSDSUNIT12Assignment/Unit11TimeSeries_Ollivander.csv", header = FALSE)
+```
+
+##b) Convert the data
+```{r,echo = TRUE}
+#convert first column to date class object
+Gregorovitch$V1 = as.Date(Gregorovitch$V1, format = "%m/%d/%Y")
+Olivander$V1 = as.Date(Olivander$V1, format = "%m/%d/%Y")
+```
+
+##c) Convert to a time series
+```{r,echo = TRUE}
+Gregorovitch = xts(Gregorovitch, order.by = Gregorovitch$V1)
+Olivander = xts(Olivander, order.by = Olivander$V1)
+```
+
+##d) Create a dygraph
+```{r,echo = TRUE}
+#merge together
+wands = cbind(Gregorovitch, Olivander)
+names(wands)[2] = "Gregorovitch_wands"
+names(wands)[4] = "Olivander_wands"
+
+#dygraph
+#install.packages("dygraphs")
+library(dygraphs)
+
+dygraph(wands, main = "Wands Sold Over Time", xlab = "Year", ylab = "Number of Wands")  %>% 
+  dySeries("Olivander_wands", label = "Olivander")  %>% 
+  dySeries("Gregorovitch_wands", label = "Gregorovitch")  %>% 
+  dyOptions(colors = RColorBrewer::brewer.pal(5, "Set1"))  %>% 
+  dyShading(from = "1995-1-1", to = "1999-1-1", color = "skyblue")  %>% 
+  dyHighlight(highlightSeriesOpts = list(strokeWidth = 2))  %>% 
+  dyRangeSelector(height = 80)
+```
